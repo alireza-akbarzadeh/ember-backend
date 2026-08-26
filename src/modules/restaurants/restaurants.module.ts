@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AddressesModule } from '../addresses/addresses.module';
 import { MenuCategoriesController } from './menu-categories.controller';
 import { MenuCategoriesRepository } from './menu-categories.repository';
 import { MenuCategoriesService } from './menu-categories.service';
@@ -21,6 +22,8 @@ import { RestaurantsService } from './restaurants.service';
  * `restaurants/:id` inside RestaurantsController.
  */
 @Module({
+  // Browse ranks by distance from the caller's default address.
+  imports: [AddressesModule],
   controllers: [
     RestaurantsController,
     MenuCategoriesController,

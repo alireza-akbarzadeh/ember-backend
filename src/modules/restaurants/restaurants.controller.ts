@@ -12,6 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import type { PaginatedDto } from '../../common/dto/paginated.dto';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -38,9 +39,17 @@ export class RestaurantsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Browse restaurants' })
-  list(@Query() query: ListRestaurantsQueryDto): Promise<RestaurantResponseDto[]> {
-    return this.restaurants.list(query);
+  @ApiOperation({
+    summary: 'Browse, search and filter restaurants',
+    description:
+      'Ranked by distance when a location is known — explicit coordinates, ' +
+      'else the caller’s default address — and by smoothed rating otherwise.',
+  })
+  browse(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListRestaurantsQueryDto,
+  ): Promise<PaginatedDto<RestaurantResponseDto>> {
+    return this.restaurants.browse(query, user);
   }
 
   /**
@@ -53,7 +62,7 @@ export class RestaurantsController {
   listMine(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: ListRestaurantsQueryDto,
-  ): Promise<RestaurantResponseDto[]> {
+  ): Promise<PaginatedDto<RestaurantResponseDto>> {
     return this.restaurants.listOwnedBy(user, query);
   }
 

@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import type { PaginatedDto } from '../../common/dto/paginated.dto';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { ListUsersQueryDto } from './dto/list-users.query.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -22,6 +24,21 @@ export class UsersController {
   @ApiOperation({ summary: 'Profile of the authenticated user' })
   getMe(@CurrentUser('id') userId: string): Promise<UserResponseDto> {
     return this.usersService.getProfile(userId);
+  }
+
+  /**
+   * Admin-only, and it has to be: these rows carry every user's email, phone
+   * and role. Without the guard, any signed-in customer could page through the
+   * whole user base.
+   */
+  @Get()
+  @Roles('admin')
+  @ApiOperation({
+    summary: 'List all users (admin only)',
+    description: 'Supports free-text search over name/email, and role/status filters.',
+  })
+  usersList(@Query() query: ListUsersQueryDto): Promise<PaginatedDto<UserResponseDto>> {
+    return this.usersService.usersList(query);
   }
 
   @Patch('me')

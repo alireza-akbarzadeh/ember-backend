@@ -4,9 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { paginate, type PaginatedDto } from '../../common/dto/paginated.dto';
 import { isUniqueViolation } from '../../database/database.errors';
 import type { User, UserRole } from '../../database/schema/users';
 import type { AuthenticatedUser } from '../auth/auth.types';
+import { ListUsersQueryDto } from './dto/list-users.query.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './users.repository';
@@ -59,6 +61,30 @@ export class UsersService {
    */
   findByEmailForAuth(email: string): Promise<User | null> {
     return this.usersRepository.findByEmail(email);
+  }
+  /**
+   * Every user in the app, filtered, searched and paginated.
+   *
+   * Admin-only at the route, and deliberately so: the rows carry email,
+   * phone and role, so an unrestricted version would let any signed-in
+   * customer download the entire user base. Mapped through `UserResponseDto`
+   * so `passwordHash` cannot ride along.
+   */
+  async usersList(query: ListUsersQueryDto): Promise<PaginatedDto<UserResponseDto>> {
+    const { rows, total } = await this.usersRepository.search({
+      search: query.search,
+      role: query.role,
+      status: query.status,
+      limit: query.limit,
+      offset: query.offset,
+    });
+
+    return paginate(
+      rows.map((row) => UserResponseDto.from(row)),
+      total,
+      query.limit,
+      query.offset,
+    );
   }
 
   /** Full row, or `null`. Used by the JWT strategy to re-check the account. */

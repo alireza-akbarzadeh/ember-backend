@@ -1,15 +1,21 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { paginate, type PaginatedDto } from '../../common/dto/paginated.dto';
 import type { Restaurant } from '../../database/schema/restaurants';
+import { AddressesService } from '../addresses/addresses.service';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { ListRestaurantsQueryDto } from './dto/list-restaurants.query.dto';
 import { RestaurantResponseDto } from './dto/restaurant-response.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
+import type { Coordinates } from './geo';
 import { RestaurantsRepository } from './restaurants.repository';
 
 @Injectable()
 export class RestaurantsService {
-  constructor(private readonly restaurants: RestaurantsRepository) {}
+  constructor(
+    private readonly restaurants: RestaurantsRepository,
+    private readonly addresses: AddressesService,
+  ) {}
 
   async create(owner: AuthenticatedUser, dto: CreateRestaurantDto): Promise<RestaurantResponseDto> {
     const restaurant = await this.restaurants.insert({
@@ -23,28 +29,59 @@ export class RestaurantsService {
     return RestaurantResponseDto.from(restaurant);
   }
 
-  async list(query: ListRestaurantsQueryDto): Promise<RestaurantResponseDto[]> {
-    const rows = await this.restaurants.findMany({
+  /**
+   * Browse and search.
+   *
+   * The ranking answers "where should I eat" differently depending on what is
+   * known about the caller: with a location, nearest first; without one,
+   * best-rated first — smoothed, so a single five-star review cannot take the
+   * top slot from a restaurant with four hundred.
+   */
+  async browse(
+    query: ListRestaurantsQueryDto,
+    user?: AuthenticatedUser,
+  ): Promise<PaginatedDto<RestaurantResponseDto>> {
+    const origin = await this.resolveOrigin(query, user);
+
+    const { rows, total } = await this.restaurants.search({
+      search: query.search,
       city: query.city,
-      openOnly: query.openOnly,
+      cuisine: query.cuisine,
+      priceLevel: query.priceLevel,
+      minRating: query.minRating,
+      maxDeliveryFeeCents: query.maxDeliveryFeeCents,
+      openNow: query.openNow,
+      origin,
+      radiusKm: origin ? query.radiusKm : undefined,
+      sort: query.sort,
       limit: query.limit,
       offset: query.offset,
     });
 
-    return rows.map((row) => RestaurantResponseDto.from(row));
+    return paginate(
+      rows.map((row) => RestaurantResponseDto.from(row)),
+      total,
+      query.limit,
+      query.offset,
+    );
   }
 
   async listOwnedBy(
     owner: AuthenticatedUser,
     query: ListRestaurantsQueryDto,
-  ): Promise<RestaurantResponseDto[]> {
-    const rows = await this.restaurants.findMany({
+  ): Promise<PaginatedDto<RestaurantResponseDto>> {
+    const { rows, total } = await this.restaurants.search({
       ownerId: owner.id,
       limit: query.limit,
       offset: query.offset,
     });
 
-    return rows.map((row) => RestaurantResponseDto.from(row));
+    return paginate(
+      rows.map((row) => RestaurantResponseDto.from(row)),
+      total,
+      query.limit,
+      query.offset,
+    );
   }
 
   async getById(id: string): Promise<RestaurantResponseDto> {
@@ -96,6 +133,30 @@ export class RestaurantsService {
     }
 
     return restaurant;
+  }
+
+  /**
+   * Where to measure distance from, in order of preference:
+   *
+   * 1. Coordinates in the query — the user dragged a pin or picked "deliver to".
+   * 2. Their saved default address.
+   * 3. Nothing, for a signed-out or address-less visitor, who gets the
+   *    quality ranking instead of an empty list.
+   */
+  private async resolveOrigin(
+    query: ListRestaurantsQueryDto,
+    user?: AuthenticatedUser,
+  ): Promise<Coordinates | undefined> {
+    if (query.latitude !== undefined && query.longitude !== undefined) {
+      return { latitude: query.latitude, longitude: query.longitude };
+    }
+
+    if (!user) return undefined;
+
+    const address = await this.addresses.findDefault(user.id);
+    if (!address) return undefined;
+
+    return { latitude: address.latitude, longitude: address.longitude };
   }
 }
 

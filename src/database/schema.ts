@@ -2,6 +2,7 @@
 // diff — drizzle-kit will generate a migration that deletes it.
 export * from './schema/users';
 export * from './schema/refresh-tokens';
+export * from './schema/addresses';
 export * from './schema/restaurants';
 export * from './schema/menu-categories';
 export * from './schema/menu-items';
