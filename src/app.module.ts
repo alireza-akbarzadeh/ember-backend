@@ -7,9 +7,12 @@ import { AppService } from './app.service';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
+import { ApiCatalogService } from './home/api-catalog.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
+import { OrdersModule } from './modules/orders/orders.module';
+import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -34,10 +37,13 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule,
     UsersModule,
     AuthModule,
+    RestaurantsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    ApiCatalogService,
     // Order matters: throttle before doing work, authenticate before checking
     // roles. Registering JwtAuthGuard globally is what makes routes protected
     // by default — @Public() is the opt-out.

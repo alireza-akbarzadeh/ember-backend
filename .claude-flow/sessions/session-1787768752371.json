@@ -1,0 +1,15 @@
+{
+  "id": "session-1787768752371",
+  "startedAt": "2026-08-26T18:25:52.371Z",
+  "cwd": "/Users/alirezaakbarzadeh/workdir/Hit/ember-backend",
+  "context": {},
+  "metrics": {
+    "edits": 65,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "restoredAt": "2026-08-26T18:28:57.176Z",
+  "endedAt": "2026-08-26T20:05:35.082Z",
+  "duration": 5982713
+}

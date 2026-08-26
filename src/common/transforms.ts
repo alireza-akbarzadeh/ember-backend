@@ -18,6 +18,21 @@ export const NormalizeEmail = () =>
 export const TrimString = () =>
   Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value));
 
+/**
+ * Parses `?flag=true` into a real boolean.
+ *
+ * Query strings are always text and the global pipe runs with
+ * `enableImplicitConversion: false`, so without this every present flag would
+ * look truthy — including `?flag=false`.
+ */
+export const ToBoolean = () =>
+  Transform(({ value }: { value: unknown }) => {
+    if (typeof value === 'boolean') return value;
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  });
+
 /** Drops spaces and dashes so `+1 555-123-4567` reaches the E.164 check. */
 export const NormalizePhone = () =>
   Transform(({ value }: { value: unknown }) =>

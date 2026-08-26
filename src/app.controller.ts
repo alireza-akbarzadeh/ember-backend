@@ -1,6 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Header } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ApiExcludeEndpoint, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AppService, type HealthStatus, type ReadinessStatus } from './app.service';
+import { ApiCatalogService } from './home/api-catalog.service';
+import { renderHomePage } from './home/home-page.template';
 import { Public } from './modules/auth/decorators/public.decorator';
 
 /**
@@ -11,7 +14,35 @@ import { Public } from './modules/auth/decorators/public.decorator';
 @ApiTags('health')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly catalog: ApiCatalogService,
+    private readonly config: ConfigService,
+  ) {}
+
+  /**
+   * A service index for whoever opens the server in a browser: what's running,
+   * whether the database is actually usable, where the docs are, and every
+   * route the app exposes.
+   *
+   * Excluded from the OpenAPI document — it is a page, not part of the API.
+   */
+  @Public()
+  @Get()
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  @ApiExcludeEndpoint()
+  async index(): Promise<string> {
+    const diagnostics = await this.appService.diagnostics();
+
+    return renderHomePage({
+      ...diagnostics,
+      environment: this.config.get<string>('NODE_ENV', 'development'),
+      uptimeSeconds: Math.floor(process.uptime()),
+      docsEnabled: this.config.get<boolean>('SWAGGER_ENABLED') ?? false,
+      groups: this.catalog.list(),
+      endpointCount: this.catalog.count(),
+    });
+  }
 
   @Public()
   @Get('health')

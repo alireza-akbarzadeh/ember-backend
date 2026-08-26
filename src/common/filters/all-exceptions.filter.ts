@@ -12,6 +12,10 @@ import { isUniqueViolation } from '../../database/database.errors';
 /** Below this a failure is the client's fault and needs no stack trace. */
 const SERVER_ERROR = 500;
 
+/** Plain numbers, not HttpStatus: `status` is a number, and comparing it to
+ * the enum trips `no-unsafe-enum-comparison`. */
+const NOT_FOUND = 404;
+
 /**
  * Last line of defence for error responses.
  *
@@ -31,13 +35,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const { status, body } = this.describe(exception);
 
+    const line = `${request.method} ${request.url} -> ${status}`;
+
     if (status >= SERVER_ERROR) {
-      this.logger.error(
-        `${request.method} ${request.url} -> ${status}`,
-        exception instanceof Error ? exception.stack : String(exception),
-      );
+      this.logger.error(line, exception instanceof Error ? exception.stack : String(exception));
+    } else if (status === NOT_FOUND) {
+      // Browsers probe for /favicon.ico, /robots.txt and friends on every page
+      // load. Logging those at warn buries the 4xx that mean something.
+      this.logger.debug(line);
     } else {
-      this.logger.warn(`${request.method} ${request.url} -> ${status}`);
+      this.logger.warn(line);
     }
 
     response.status(status).json({

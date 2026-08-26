@@ -3,6 +3,7 @@
 export * from './schema/users';
 export * from './schema/refresh-tokens';
 export * from './schema/restaurants';
+export * from './schema/menu-categories';
 export * from './schema/menu-items';
 export * from './schema/orders';
 export * from './schema/order-items';

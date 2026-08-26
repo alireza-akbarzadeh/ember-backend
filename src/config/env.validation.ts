@@ -7,43 +7,54 @@ import { z } from 'zod';
  * deploy dies at boot with a readable message instead of throwing 500s on the
  * first request that happens to need the value.
  */
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().positive().default(3000),
+const envSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    PORT: z.coerce.number().int().positive().default(3000),
 
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),
+    DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+    DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),
 
-  // 32+ chars: a short secret makes HS256 brute-forceable offline.
-  JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
-  // `ms`-style duration. The shape is enforced here so `AuthModule` can hand
-  // it to jsonwebtoken, which types it as a template literal rather than a
-  // plain string.
-  JWT_ACCESS_TTL: z
-    .string()
-    .regex(/^\d+[smhd]$/, 'JWT_ACCESS_TTL must look like 15m, 2h or 7d')
-    .default('15m'),
-  JWT_ISSUER: z.string().default('ember'),
-  JWT_AUDIENCE: z.string().default('ember-api'),
+    // 32+ chars: a short secret makes HS256 brute-forceable offline.
+    JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
+    // `ms`-style duration. The shape is enforced here so `AuthModule` can hand
+    // it to jsonwebtoken, which types it as a template literal rather than a
+    // plain string.
+    JWT_ACCESS_TTL: z
+      .string()
+      .regex(/^\d+[smhd]$/, 'JWT_ACCESS_TTL must look like 15m, 2h or 7d')
+      .default('15m'),
+    JWT_ISSUER: z.string().default('ember'),
+    JWT_AUDIENCE: z.string().default('ember-api'),
 
-  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+    REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
 
-  // Comma-separated list; empty means "same-origin only".
-  CORS_ORIGINS: z.string().default(''),
+    // Comma-separated list; empty means "same-origin only".
+    CORS_ORIGINS: z.string().default(''),
 
-  // Number of reverse proxies in front of the app. Must match reality: too
-  // high and a client can spoof its IP through X-Forwarded-For, defeating the
-  // rate limiter; too low and every request looks like it came from the proxy.
-  TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+    // Number of reverse proxies in front of the app. Must match reality: too
+    // high and a client can spoof its IP through X-Forwarded-For, defeating the
+    // rate limiter; too low and every request looks like it came from the proxy.
+    TRUST_PROXY: z.coerce.number().int().min(0).default(0),
 
-  THROTTLE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
-  THROTTLE_LIMIT: z.coerce.number().int().positive().default(120),
+    THROTTLE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
+    THROTTLE_LIMIT: z.coerce.number().int().positive().default(120),
 
-  SWAGGER_ENABLED: z
-    .enum(['true', 'false'])
-    .default('false')
-    .transform((value) => value === 'true'),
-});
+    // Left unset on purpose — resolved below from NODE_ENV.
+    SWAGGER_ENABLED: z.enum(['true', 'false']).optional(),
+  })
+  .transform((env) => ({
+    ...env,
+    /**
+     * On everywhere except production, off in production, overridable either
+     * way. Docs that need opting into are docs nobody finds, and docs that
+     * ship to production are an API surface map for anyone who asks.
+     */
+    SWAGGER_ENABLED:
+      env.SWAGGER_ENABLED === undefined
+        ? env.NODE_ENV !== 'production'
+        : env.SWAGGER_ENABLED === 'true',
+  }));
 
 export type Env = z.infer<typeof envSchema>;
 

@@ -1,6 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { isUniqueViolation } from '../../database/database.errors';
-import type { User } from '../../database/schema/users';
+import type { User, UserRole } from '../../database/schema/users';
+import type { AuthenticatedUser } from '../auth/auth.types';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './users.repository';
@@ -62,6 +68,27 @@ export class UsersService {
 
   async getProfile(id: string): Promise<UserResponseDto> {
     const user = await this.usersRepository.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+
+    return UserResponseDto.from(user);
+  }
+
+  /**
+   * Promotes or demotes an account. Guarded by `@Roles('admin')` on the route.
+   *
+   * No session revocation is needed: `JwtStrategy` reads the role from the
+   * database on every request rather than trusting the claim baked into the
+   * access token, so a demotion takes effect on the target's next request
+   * instead of whenever their token happens to expire.
+   */
+  async updateRole(actor: AuthenticatedUser, id: string, role: UserRole): Promise<UserResponseDto> {
+    // Self-demotion could leave the system with no admin at all, and there is
+    // no self-service way back in.
+    if (actor.id === id) {
+      throw new ForbiddenException('You cannot change your own role');
+    }
+
+    const user = await this.usersRepository.update(id, { role });
     if (!user) throw new NotFoundException('User not found');
 
     return UserResponseDto.from(user);
