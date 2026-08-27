@@ -1,0 +1,140 @@
+[
+  {
+    "timestamp": 1787833380301,
+    "nodes": 28,
+    "edges": 351,
+    "pageRankSum": 1,
+    "confidences": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "accessCounts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "topPatterns": [
+      {
+        "id": "insight-1787833380290-5m7x",
+        "summary": "Frequently edited: package.json (3x)",
+        "confidence": 0.5,
+        "pageRank": 0.21050056213457277,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-qvcw",
+        "summary": "Frequently edited: PROGRESS.md (8x)",
+        "confidence": 0.5,
+        "pageRank": 0.11378407303713307,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-14io",
+        "summary": "Frequently edited: home-page.template.ts (4x)",
+        "confidence": 0.5,
+        "pageRank": 0.07984847787218927,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-vtw5",
+        "summary": "Frequently edited: orders.service.spec.ts (6x)",
+        "confidence": 0.5,
+        "pageRank": 0.06221960087506294,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-w82m",
+        "summary": "Frequently edited: restaurants.module.ts (4x)",
+        "confidence": 0.5,
+        "pageRank": 0.05131514156721584,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-pjxp",
+        "summary": "Frequently edited: menu-items.controller.ts (3x)",
+        "confidence": 0.5,
+        "pageRank": 0.04385910084813934,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-nsyv",
+        "summary": "Frequently edited: restaurants.controller.ts (4x)",
+        "confidence": 0.5,
+        "pageRank": 0.038416734953902486,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-nbyr",
+        "summary": "Frequently edited: restaurants.service.ts (3x)",
+        "confidence": 0.5,
+        "pageRank": 0.034256964403113974,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-cfdt",
+        "summary": "Frequently edited: list-restaurants.query.dto.ts (3x)",
+        "confidence": 0.5,
+        "pageRank": 0.030966750000736894,
+        "accessCount": 0
+      },
+      {
+        "id": "insight-1787833380290-5r9l",
+        "summary": "Frequently edited: restaurants.repository.ts (3x)",
+        "confidence": 0.5,
+        "pageRank": 0.028294494293279505,
+        "accessCount": 0
+      }
+    ]
+  }
+]
