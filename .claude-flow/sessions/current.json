@@ -1,12 +1,21 @@
 {
-  "id": "session-1787833917866",
-  "startedAt": "2026-08-27T12:31:57.866Z",
+  "id": "session-1787837669285",
+  "startedAt": "2026-08-27T13:34:29.285Z",
   "cwd": "/Users/alirezaakbarzadeh/workdir/Hit/ember-backend",
-  "context": {},
+  "context": {
+    "lastMatchedPatterns": [
+      "insight-1787833380290-5m7x",
+      "insight-1787833380290-qvcw",
+      "insight-1787833380290-14io",
+      "insight-1787833380290-w82m",
+      "insight-1787833380290-vtw5"
+    ]
+  },
   "metrics": {
-    "edits": 1,
+    "edits": 15,
     "commands": 0,
     "tasks": 0,
     "errors": 0
-  }
+  },
+  "updatedAt": "2026-08-27T13:53:03.010Z"
 }

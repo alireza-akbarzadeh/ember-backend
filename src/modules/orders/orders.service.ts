@@ -81,6 +81,12 @@ export class OrdersService {
     const subtotalCents = lines.reduce((sum, line) => sum + line.lineTotalCents, 0);
     const deliveryFeeCents = restaurant.deliveryFeeCents;
 
+    // Enforced here rather than only in the cart, so posting straight to
+    // /orders cannot slip under a restaurant's minimum.
+    if (subtotalCents < restaurant.minimumOrderCents) {
+      throw new ConflictException(MESSAGES.cart.belowMinimum);
+    }
+
     const order = await this.orders.createWithItems(
       {
         customerId: customer.id,

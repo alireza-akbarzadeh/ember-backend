@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": 1787833907218,
+  "updatedAt": 1787837669306,
   "nodeCount": 28,
   "contentFingerprint": "d601e6da_ec031df5_1385",
   "nodes": {
@@ -196,8 +196,8 @@
     "insight-1787833380290-5m7x": {
       "id": "insight-1787833380290-5m7x",
       "category": "insights",
-      "confidence": 0.5,
-      "accessCount": 0,
+      "confidence": 0.55,
+      "accessCount": 1,
       "createdAt": 1787833380290
     }
   },

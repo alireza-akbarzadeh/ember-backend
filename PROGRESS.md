@@ -133,11 +133,37 @@ review. It now walks the cause chain.
 The mocked tests all passed throughout, because they constructed the error
 shape the code assumed rather than the one Drizzle produces.
 
-## ⬜ 6. Cart ← **next**
+## ✅ 6. Cart
 
-Persist a basket between sessions, re-price at checkout.
+- One basket per customer, enforced by a **unique index on `user_id`** — not a
+  convention a service has to remember
+- **No money stored anywhere in the cart.** Prices are read from the menu on
+  every view and again at checkout, so a price change or a sold-out dish shows
+  up before the customer commits, not on the receipt
+- Adding the same dish increments via **upsert** on `(cart_id, menu_item_id)`,
+  so two rapid taps sum to two instead of racing to one
+- A dish from another restaurant is a 409 naming the current one, so the client
+  can offer "start a new basket?"
+- Sold-out lines stay visible but contribute nothing to the total
+- `blockers[]` + `canCheckout` tell the client exactly why the button is off
+- Checkout delegates to `OrdersService.create`, so pricing lives in one place,
+  and **clears the basket only after the order exists**
+- Minimum order enforced in `OrdersService`, not just the cart — posting
+  straight to `/orders` can't slip under it
 
-## ⬜ 7. Payments
+```
+GET    /api/cart
+POST   /api/cart/items               add or increment
+PATCH  /api/cart/items/:menuItemId   exact quantity; 0 removes
+DELETE /api/cart/items/:menuItemId
+DELETE /api/cart                     empty it
+POST   /api/cart/checkout            → order, then empties
+```
+
+**Verified live against Neon** — add, increment, cross-restaurant rejection,
+below-minimum block, checkout, basket emptied.
+
+## ⬜ 7. Payments ← **next**
 
 Payment intent, idempotency keys, webhook reconciliation.
 

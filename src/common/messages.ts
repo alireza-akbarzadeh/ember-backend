@@ -68,6 +68,24 @@ export const MESSAGES = {
     transitionForbidden: (to: string): string => `You are not allowed to mark this order ${to}`,
   },
 
+  cart: {
+    empty: 'Your basket is empty',
+    itemNotInCart: 'That item is not in your basket',
+    /**
+     * A cart belongs to one restaurant. The client is expected to offer
+     * "start a new basket?" on this, so the message names the trade rather
+     * than just refusing.
+     */
+    differentRestaurant: (current: string): string =>
+      `Your basket already has items from ${current}. Empty it first to order somewhere else.`,
+    nothingAvailable: 'Everything in your basket is sold out — remove those items or start again',
+    /**
+     * No amounts in the text: the response carries `minimumOrderCents` and
+     * `subtotalCents`, and only the client knows which currency to render.
+     */
+    belowMinimum: 'Your basket is below this restaurant’s minimum order',
+  },
+
   reviews: {
     customerOnly: 'Only the customer who placed an order can review it',
     notDelivered: 'An order can be reviewed once it has been delivered',

@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "computedAt": 1787833907219,
+  "computedAt": 1787837669307,
   "entries": [
     {
       "id": "insight-1787833380290-5m7x",
       "content": "File /Users/alirezaakbarzadeh/workdir/Hit/ember-backend/package.json was edited 3 times this session — likely a hot path worth monitoring.",
       "summary": "Frequently edited: package.json (3x)",
       "category": "insights",
-      "confidence": 0.5,
+      "confidence": 0.55,
       "pageRank": 0.21050056213457277,
-      "accessCount": 0,
+      "accessCount": 1,
       "words": [
         "file",
         "users",

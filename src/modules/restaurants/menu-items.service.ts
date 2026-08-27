@@ -70,6 +70,16 @@ export class MenuItemsService {
   }
 
   /** Batch lookup used by order creation to price a basket server-side. */
+  /**
+   * Single-item lookup across every restaurant.
+   *
+   * The cart needs this to work out which restaurant a dish belongs to before
+   * it has a basket to scope the search by.
+   */
+  findAnyById(id: string): Promise<MenuItem | null> {
+    return this.menuItems.findById(id);
+  }
+
   findOrderableItems(restaurantId: string, ids: string[]): Promise<MenuItem[]> {
     return this.menuItems.findManyInRestaurant(restaurantId, ids);
   }

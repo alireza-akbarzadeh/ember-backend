@@ -14,6 +14,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { OrdersModule } from './modules/orders/orders.module';
 import { RestaurantsModule } from './modules/restaurants/restaurants.module';
+import { CartModule } from './modules/cart/cart.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -43,6 +44,7 @@ import { UsersModule } from './modules/users/users.module';
     RestaurantsModule,
     OrdersModule,
     ReviewsModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [

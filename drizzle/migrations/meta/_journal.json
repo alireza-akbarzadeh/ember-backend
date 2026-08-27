@@ -36,6 +36,13 @@
       "when": 1787831577298,
       "tag": "0004_lame_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787837815899,
+      "tag": "0005_wakeful_arachne",
+      "breakpoints": true
     }
   ]
 }

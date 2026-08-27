@@ -9,3 +9,5 @@ export * from './schema/menu-items';
 export * from './schema/orders';
 export * from './schema/order-items';
 export * from './schema/reviews';
+export * from './schema/carts';
+export * from './schema/cart-items';
