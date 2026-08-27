@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from '../../users/users.service';
 import type { AuthenticatedUser, JwtPayload } from '../auth.types';
+import { MESSAGES } from '../../../common/messages';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -34,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.usersService.findById(payload.sub);
 
     if (!user || user.status !== 'active') {
-      throw new UnauthorizedException('Account is no longer active');
+      throw new UnauthorizedException(MESSAGES.auth.accountInactive);
     }
 
     return { id: user.id, email: user.email, role: user.role };

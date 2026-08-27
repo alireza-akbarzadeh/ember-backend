@@ -8,6 +8,7 @@ import { RestaurantsService } from '../restaurants/restaurants.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewResponseDto } from './dto/review-response.dto';
 import { ReviewsRepository } from './reviews.repository';
+import { MESSAGES } from '../../common/messages';
 
 @Injectable()
 export class ReviewsService {
@@ -33,11 +34,11 @@ export class ReviewsService {
     const order = await this.orders.getById(user, orderId);
 
     if (order.customerId !== user.id) {
-      throw new ForbiddenException('Only the customer who placed an order can review it');
+      throw new ForbiddenException(MESSAGES.reviews.customerOnly);
     }
 
     if (order.status !== 'delivered') {
-      throw new ConflictException('An order can be reviewed once it has been delivered');
+      throw new ConflictException(MESSAGES.reviews.notDelivered);
     }
 
     try {
@@ -54,7 +55,7 @@ export class ReviewsService {
       // The unique index is the arbiter, not a pre-flight SELECT that two
       // concurrent submissions could both pass.
       if (isUniqueViolation(error, 'reviews_order_id_unique')) {
-        throw new ConflictException('This order has already been reviewed');
+        throw new ConflictException(MESSAGES.reviews.alreadyReviewed);
       }
       throw error;
     }

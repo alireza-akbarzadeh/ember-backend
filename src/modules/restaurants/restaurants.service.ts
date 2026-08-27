@@ -9,6 +9,7 @@ import { RestaurantResponseDto } from './dto/restaurant-response.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import type { Coordinates } from './geo';
 import { RestaurantsRepository } from './restaurants.repository';
+import { MESSAGES } from '../../common/messages';
 
 @Injectable()
 export class RestaurantsService {
@@ -96,7 +97,7 @@ export class RestaurantsService {
     await this.requireOwned(id, user);
 
     const restaurant = await this.restaurants.update(id, dto);
-    if (!restaurant) throw new NotFoundException('Restaurant not found');
+    if (!restaurant) throw new NotFoundException(MESSAGES.restaurants.notFound);
 
     return RestaurantResponseDto.from(restaurant);
   }
@@ -105,7 +106,7 @@ export class RestaurantsService {
     await this.requireOwned(id, user);
 
     const deleted = await this.restaurants.delete(id);
-    if (!deleted) throw new NotFoundException('Restaurant not found');
+    if (!deleted) throw new NotFoundException(MESSAGES.restaurants.notFound);
   }
 
   /** Every restaurant id this user manages, for scoping their order list. */
@@ -116,7 +117,7 @@ export class RestaurantsService {
   /** Row lookup for other services (orders). Throws rather than returning null. */
   async requireById(id: string): Promise<Restaurant> {
     const restaurant = await this.restaurants.findById(id);
-    if (!restaurant) throw new NotFoundException('Restaurant not found');
+    if (!restaurant) throw new NotFoundException(MESSAGES.restaurants.notFound);
 
     return restaurant;
   }
@@ -129,7 +130,7 @@ export class RestaurantsService {
     const restaurant = await this.requireById(id);
 
     if (!isOwnedBy(restaurant, user)) {
-      throw new ForbiddenException('You do not manage this restaurant');
+      throw new ForbiddenException(MESSAGES.restaurants.notYours);
     }
 
     return restaurant;

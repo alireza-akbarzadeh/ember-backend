@@ -5,6 +5,7 @@ import { AddressesRepository } from './addresses.repository';
 import { AddressResponseDto } from './dto/address-response.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
+import { MESSAGES } from '../../common/messages';
 
 @Injectable()
 export class AddressesService {
@@ -38,7 +39,7 @@ export class AddressesService {
     await this.requireOwned(id, user);
 
     const address = await this.addresses.update(id, user.id, dto);
-    if (!address) throw new NotFoundException('Address not found');
+    if (!address) throw new NotFoundException(MESSAGES.addresses.notFound);
 
     return AddressResponseDto.from(address);
   }
@@ -68,7 +69,7 @@ export class AddressesService {
     const address = await this.addresses.findById(id);
 
     if (!address || (address.userId !== user.id && user.role !== 'admin')) {
-      throw new NotFoundException('Address not found');
+      throw new NotFoundException(MESSAGES.addresses.notFound);
     }
 
     return address;

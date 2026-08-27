@@ -15,6 +15,7 @@ import { OrderResponseDto, type OrderWithItems } from './dto/order-response.dto'
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { checkTransition, type OrderActor } from './order-status';
 import { type FindOrdersOptions, type NewOrderLine, OrdersRepository } from './orders.repository';
+import { MESSAGES } from '../../common/messages';
 
 @Injectable()
 export class OrdersService {
@@ -36,7 +37,7 @@ export class OrdersService {
     const restaurant = await this.restaurants.requireById(dto.restaurantId);
 
     if (!restaurant.isOpen) {
-      throw new ConflictException('This restaurant is not accepting orders');
+      throw new ConflictException(MESSAGES.restaurants.closed);
     }
 
     const quantities = mergeQuantities(dto.items);
@@ -71,12 +72,10 @@ export class OrdersService {
     }
 
     if (missing.length > 0) {
-      throw new BadRequestException(
-        `These items are not on this restaurant's menu: ${missing.join(', ')}`,
-      );
+      throw new BadRequestException(MESSAGES.orders.unknownItems(missing));
     }
     if (unavailable.length > 0) {
-      throw new ConflictException(`Currently unavailable: ${unavailable.join(', ')}`);
+      throw new ConflictException(MESSAGES.orders.unavailableItems(unavailable));
     }
 
     const subtotalCents = lines.reduce((sum, line) => sum + line.lineTotalCents, 0);
@@ -171,9 +170,9 @@ export class OrdersService {
 
     if (!check.allowed) {
       if (check.reason === 'illegal') {
-        throw new ConflictException(`An order that is ${order.status} cannot become ${dto.status}`);
+        throw new ConflictException(MESSAGES.orders.illegalTransition(order.status, dto.status));
       }
-      throw new ForbiddenException(`You are not allowed to mark this order ${dto.status}`);
+      throw new ForbiddenException(MESSAGES.orders.transitionForbidden(dto.status));
     }
 
     const updated = await this.orders.updateStatus(id, order.status, dto.status, {
@@ -197,7 +196,7 @@ export class OrdersService {
     const claimed = await this.orders.claim(id, courier.id);
 
     if (!claimed) {
-      throw new ConflictException('This order is no longer available to claim');
+      throw new ConflictException(MESSAGES.orders.notAvailableToClaim);
     }
 
     return OrderResponseDto.from({ ...claimed, items: order.items });
@@ -205,7 +204,7 @@ export class OrdersService {
 
   private async requireById(id: string): Promise<OrderWithItems> {
     const order = await this.orders.findById(id);
-    if (!order) throw new NotFoundException('Order not found');
+    if (!order) throw new NotFoundException(MESSAGES.orders.notFound);
 
     return order;
   }
@@ -217,7 +216,7 @@ export class OrdersService {
    */
   private async requireInvolved(order: Order, user: AuthenticatedUser): Promise<OrderActor[]> {
     const actors = await this.actorsFor(order, user);
-    if (actors.length === 0) throw new NotFoundException('Order not found');
+    if (actors.length === 0) throw new NotFoundException(MESSAGES.orders.notFound);
 
     return actors;
   }

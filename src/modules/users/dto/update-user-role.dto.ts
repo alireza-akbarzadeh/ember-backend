@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn } from 'class-validator';
 import { userRole, type UserRole } from '../../../database/schema/users';
+import { VALIDATION } from '../../../common/messages';
 
 /**
  * Admin-only. This is the only way a role ever changes — registration always
@@ -9,7 +10,7 @@ import { userRole, type UserRole } from '../../../database/schema/users';
 export class UpdateUserRoleDto {
   @ApiProperty({ enum: userRole.enumValues })
   @IsIn(userRole.enumValues, {
-    message: `role must be one of: ${userRole.enumValues.join(', ')}`,
+    message: VALIDATION.oneOf('role', userRole.enumValues),
   })
   role: UserRole;
 }

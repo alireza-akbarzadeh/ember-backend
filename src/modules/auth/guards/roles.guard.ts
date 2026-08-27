@@ -10,6 +10,7 @@ import type { Request } from 'express';
 import type { UserRole } from '../../../database/schema/users';
 import type { AuthenticatedUser } from '../auth.types';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import { MESSAGES } from '../../../common/messages';
 
 /**
  * Coarse role gate for routes carrying `@Roles()`. Registered after
@@ -36,10 +37,10 @@ export class RolesGuard implements CanActivate {
 
     // A @Roles() route that is also @Public() is a wiring mistake, not a
     // request the client can fix — fail closed and loudly.
-    if (!user) throw new UnauthorizedException('Authentication required');
+    if (!user) throw new UnauthorizedException(MESSAGES.auth.required);
 
     if (!required.includes(user.role)) {
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException(MESSAGES.auth.insufficientPermissions);
     }
 
     return true;

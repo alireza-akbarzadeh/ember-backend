@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, Length, Matches } from 'class-validator';
 import { NormalizePhone, TrimString } from '../../../common/transforms';
+import { VALIDATION } from '../../../common/messages';
 
 /**
  * Self-service profile edits.
@@ -22,7 +23,7 @@ export class UpdateProfileDto {
   @IsString()
   @NormalizePhone()
   @Matches(/^\+[1-9]\d{7,14}$/, {
-    message: 'phone must be in E.164 format, e.g. +15551234567',
+    message: VALIDATION.phone,
   })
   phone?: string;
 }

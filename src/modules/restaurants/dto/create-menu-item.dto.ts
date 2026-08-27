@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsOptional, IsString, IsUUID, Length, Max, Min } from 'class-validator';
 import { TrimString } from '../../../common/transforms';
+import { VALIDATION } from '../../../common/messages';
 
 export class CreateMenuItemDto {
   @ApiPropertyOptional({
@@ -33,7 +34,7 @@ export class CreateMenuItemDto {
     example: 1250,
     minimum: 1,
   })
-  @IsInt({ message: 'priceCents must be an integer number of cents' })
+  @IsInt({ message: VALIDATION.cents('priceCents') })
   @Min(1)
   @Max(1_000_000)
   priceCents: number;

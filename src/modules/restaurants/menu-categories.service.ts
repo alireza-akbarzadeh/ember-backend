@@ -7,8 +7,7 @@ import { MenuCategoryResponseDto } from './dto/menu-category-response.dto';
 import { UpdateMenuCategoryDto } from './dto/update-menu-category.dto';
 import { MENU_CATEGORY_NAME_UNIQUE, MenuCategoriesRepository } from './menu-categories.repository';
 import { RestaurantsService } from './restaurants.service';
-
-const DUPLICATE_NAME = 'This restaurant already has a category with that name';
+import { MESSAGES } from '../../common/messages';
 
 @Injectable()
 export class MenuCategoriesService {
@@ -31,7 +30,7 @@ export class MenuCategoriesService {
       // The (restaurant_id, name) unique index is the arbiter, not a
       // pre-flight SELECT that two concurrent creates could both pass.
       if (isUniqueViolation(error, MENU_CATEGORY_NAME_UNIQUE)) {
-        throw new ConflictException(DUPLICATE_NAME);
+        throw new ConflictException(MESSAGES.menu.duplicateCategoryName);
       }
       throw error;
     }
@@ -56,12 +55,12 @@ export class MenuCategoriesService {
 
     try {
       const category = await this.categories.update(categoryId, dto);
-      if (!category) throw new NotFoundException('Category not found');
+      if (!category) throw new NotFoundException(MESSAGES.menu.categoryNotFound);
 
       return MenuCategoryResponseDto.from(category);
     } catch (error) {
       if (isUniqueViolation(error, MENU_CATEGORY_NAME_UNIQUE)) {
-        throw new ConflictException(DUPLICATE_NAME);
+        throw new ConflictException(MESSAGES.menu.duplicateCategoryName);
       }
       throw error;
     }
@@ -83,7 +82,7 @@ export class MenuCategoriesService {
     const category = await this.categories.findById(categoryId);
 
     if (!category || category.restaurantId !== restaurantId) {
-      throw new NotFoundException('Category not found');
+      throw new NotFoundException(MESSAGES.menu.categoryNotFound);
     }
 
     return category;

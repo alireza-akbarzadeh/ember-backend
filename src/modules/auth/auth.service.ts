@@ -7,9 +7,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { PasswordService } from './password.service';
 import { SessionMeta, TokenService } from './token.service';
-
-/** One message for every credential failure — see `login`. */
-const INVALID_CREDENTIALS = 'Invalid email or password';
+import { MESSAGES } from '../../common/messages';
 
 /**
  * Credential verification and token issuing.
@@ -49,14 +47,14 @@ export class AuthService {
 
     if (!user) {
       await this.passwordService.verifyDecoy();
-      throw new UnauthorizedException(INVALID_CREDENTIALS);
+      throw new UnauthorizedException(MESSAGES.auth.invalidCredentials);
     }
 
     const passwordMatches = await this.passwordService.verify(user.passwordHash, dto.password);
 
-    if (!passwordMatches) throw new UnauthorizedException(INVALID_CREDENTIALS);
+    if (!passwordMatches) throw new UnauthorizedException(MESSAGES.auth.invalidCredentials);
     if (user.status !== 'active') {
-      throw new UnauthorizedException(INVALID_CREDENTIALS);
+      throw new UnauthorizedException(MESSAGES.auth.invalidCredentials);
     }
 
     return this.buildSession(user, meta);
@@ -76,7 +74,7 @@ export class AuthService {
       // The account was suspended or deleted mid-session: drop every sibling
       // token rather than handing back a working pair.
       await this.tokenService.revokeAllForUser(userId);
-      throw new ForbiddenException('Account is no longer active');
+      throw new ForbiddenException(MESSAGES.auth.accountInactive);
     }
 
     return this.buildSession(user, meta, familyId);

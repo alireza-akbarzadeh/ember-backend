@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { isUniqueViolation } from '../../database/database.errors';
+import { MESSAGES } from '../messages';
 
 /** Below this a failure is the client's fault and needs no stack trace. */
 const SERVER_ERROR = 500;
@@ -79,7 +80,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         status: HttpStatus.CONFLICT,
         body: {
           statusCode: HttpStatus.CONFLICT,
-          message: 'Resource already exists',
+          message: MESSAGES.generic.conflict,
           error: 'Conflict',
         },
       };
@@ -89,7 +90,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       body: {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error',
+        message: MESSAGES.generic.internal,
         error: 'Internal Server Error',
       },
     };

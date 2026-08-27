@@ -12,6 +12,7 @@ import { ListUsersQueryDto } from './dto/list-users.query.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './users.repository';
+import { MESSAGES } from '../../common/messages';
 
 /** Everything a caller needs to create an account, already hashed. */
 export interface CreateUserInput {
@@ -46,10 +47,10 @@ export class UsersService {
       });
     } catch (error) {
       if (isUniqueViolation(error, 'users_email_unique')) {
-        throw new ConflictException('Email is already registered');
+        throw new ConflictException(MESSAGES.users.emailTaken);
       }
       if (isUniqueViolation(error, 'users_phone_unique')) {
-        throw new ConflictException('Phone number is already registered');
+        throw new ConflictException(MESSAGES.users.phoneTaken);
       }
       throw error;
     }
@@ -94,7 +95,7 @@ export class UsersService {
 
   async getProfile(id: string): Promise<UserResponseDto> {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException(MESSAGES.users.notFound);
 
     return UserResponseDto.from(user);
   }
@@ -111,11 +112,11 @@ export class UsersService {
     // Self-demotion could leave the system with no admin at all, and there is
     // no self-service way back in.
     if (actor.id === id) {
-      throw new ForbiddenException('You cannot change your own role');
+      throw new ForbiddenException(MESSAGES.users.cannotChangeOwnRole);
     }
 
     const user = await this.usersRepository.update(id, { role });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException(MESSAGES.users.notFound);
 
     return UserResponseDto.from(user);
   }
@@ -123,12 +124,12 @@ export class UsersService {
   async updateProfile(id: string, patch: UpdateProfileDto): Promise<UserResponseDto> {
     try {
       const user = await this.usersRepository.update(id, patch);
-      if (!user) throw new NotFoundException('User not found');
+      if (!user) throw new NotFoundException(MESSAGES.users.notFound);
 
       return UserResponseDto.from(user);
     } catch (error) {
       if (isUniqueViolation(error, 'users_phone_unique')) {
-        throw new ConflictException('Phone number is already registered');
+        throw new ConflictException(MESSAGES.users.phoneTaken);
       }
       throw error;
     }

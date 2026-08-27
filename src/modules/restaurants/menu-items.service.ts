@@ -7,6 +7,7 @@ import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { MenuCategoriesService } from './menu-categories.service';
 import { MenuItemsRepository } from './menu-items.repository';
 import { RestaurantsService } from './restaurants.service';
+import { MESSAGES } from '../../common/messages';
 
 @Injectable()
 export class MenuItemsService {
@@ -56,7 +57,7 @@ export class MenuItemsService {
     await this.assertCategoryBelongs(dto.categoryId, restaurantId);
 
     const item = await this.menuItems.update(itemId, dto);
-    if (!item) throw new NotFoundException('Menu item not found');
+    if (!item) throw new NotFoundException(MESSAGES.menu.itemNotFound);
 
     return MenuItemResponseDto.from(item);
   }
@@ -109,7 +110,7 @@ export class MenuItemsService {
     const item = await this.menuItems.findById(itemId);
 
     if (!item || item.restaurantId !== restaurantId) {
-      throw new NotFoundException('Menu item not found');
+      throw new NotFoundException(MESSAGES.menu.itemNotFound);
     }
 
     return item;

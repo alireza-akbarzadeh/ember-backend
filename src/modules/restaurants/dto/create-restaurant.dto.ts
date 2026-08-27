@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString, Length, Matches, Max, Min } from 'class-validator';
 import { NormalizePhone, TrimString } from '../../../common/transforms';
+import { VALIDATION } from '../../../common/messages';
 
 /**
  * `ownerId` is absent by design — the owner is the authenticated caller, taken
@@ -37,7 +38,7 @@ export class CreateRestaurantDto {
   @IsString()
   @NormalizePhone()
   @Matches(/^\+[1-9]\d{7,14}$/, {
-    message: 'phone must be in E.164 format, e.g. +442071234567',
+    message: VALIDATION.phone,
   })
   phone?: string;
 
@@ -47,7 +48,7 @@ export class CreateRestaurantDto {
     default: 0,
   })
   @IsOptional()
-  @IsInt({ message: 'deliveryFeeCents must be an integer number of cents' })
+  @IsInt({ message: VALIDATION.cents('deliveryFeeCents') })
   @Min(0)
   @Max(100_000)
   deliveryFeeCents?: number;

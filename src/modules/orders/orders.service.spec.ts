@@ -10,6 +10,7 @@ import { RestaurantsService } from '../restaurants/restaurants.service';
 import type { OrderWithItems } from './dto/order-response.dto';
 import { OrdersRepository } from './orders.repository';
 import { OrdersService } from './orders.service';
+import { MESSAGES } from '../../common/messages';
 
 const CUSTOMER: AuthenticatedUser = {
   id: 'customer-1',
@@ -320,9 +321,11 @@ describe('OrdersService', () => {
     it('stops the customer confirming their own order', async () => {
       repository.findById.mockResolvedValue(anOrder());
 
+      // Asserts through the constant, so rewording the message in messages.ts
+      // does not silently break this test.
       await expect(
         service.updateStatus(CUSTOMER, 'order-1', { status: 'confirmed' }),
-      ).rejects.toThrow(/not allowed/i);
+      ).rejects.toThrow(MESSAGES.orders.transitionForbidden('confirmed'));
 
       expect(repository.updateStatus).not.toHaveBeenCalled();
     });

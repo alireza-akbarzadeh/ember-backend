@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, Length, Matches, MaxLength } from 'class-validator';
 import { NormalizeEmail, NormalizePhone, TrimString } from '../../../common/transforms';
+import { VALIDATION } from '../../../common/messages';
 
 /**
  * Note the fields that are *not* here: `role` and `status`. A client cannot
@@ -8,7 +9,7 @@ import { NormalizeEmail, NormalizePhone, TrimString } from '../../../common/tran
  */
 export class RegisterDto {
   @ApiProperty({ example: 'sam@example.com', maxLength: 255 })
-  @IsEmail({}, { message: 'email must be a valid email address' })
+  @IsEmail({}, { message: VALIDATION.email })
   @MaxLength(255)
   @NormalizeEmail()
   email: string;
@@ -23,7 +24,7 @@ export class RegisterDto {
   // huge body from turning password hashing into a DoS vector.
   @IsString()
   @Length(10, 128, {
-    message: 'password must be between 10 and 128 characters',
+    message: VALIDATION.password,
   })
   password: string;
 
@@ -38,7 +39,7 @@ export class RegisterDto {
   @IsString()
   @NormalizePhone()
   @Matches(/^\+[1-9]\d{7,14}$/, {
-    message: 'phone must be in E.164 format, e.g. +15551234567',
+    message: VALIDATION.phone,
   })
   phone?: string;
 }

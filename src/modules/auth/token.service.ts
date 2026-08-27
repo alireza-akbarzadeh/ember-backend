@@ -5,6 +5,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { User } from '../../database/schema/users';
 import type { JwtPayload } from './auth.types';
 import { RefreshTokenRepository } from './refresh-token.repository';
+import { MESSAGES } from '../../common/messages';
 
 /** Client fingerprint stored alongside a session, for audit and revocation UX. */
 export interface SessionMeta {
@@ -93,22 +94,22 @@ export class TokenService {
 
     // Same opaque message in every failure branch — an attacker learns nothing
     // about which check failed.
-    if (!stored) throw new UnauthorizedException('Invalid refresh token');
+    if (!stored) throw new UnauthorizedException(MESSAGES.auth.invalidRefreshToken);
 
     if (stored.revokedAt) {
       await this.refreshTokens.revokeFamily(stored.familyId);
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException(MESSAGES.auth.invalidRefreshToken);
     }
 
     if (stored.expiresAt.getTime() <= Date.now()) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException(MESSAGES.auth.invalidRefreshToken);
     }
 
     // Loses the race against a concurrent rotation => treat as a replay.
     const won = await this.refreshTokens.markRevoked(stored.id);
     if (!won) {
       await this.refreshTokens.revokeFamily(stored.familyId);
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException(MESSAGES.auth.invalidRefreshToken);
     }
 
     return { userId: stored.userId, familyId: stored.familyId };

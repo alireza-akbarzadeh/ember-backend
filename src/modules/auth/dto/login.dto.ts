@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { NormalizeEmail } from '../../../common/transforms';
+import { VALIDATION } from '../../../common/messages';
 
 /**
  * Login deliberately does not re-apply the registration password policy —
@@ -9,7 +10,7 @@ import { NormalizeEmail } from '../../../common/transforms';
  */
 export class LoginDto {
   @ApiProperty({ example: 'sam@example.com' })
-  @IsEmail({}, { message: 'email must be a valid email address' })
+  @IsEmail({}, { message: VALIDATION.email })
   @MaxLength(255)
   @NormalizeEmail()
   email: string;

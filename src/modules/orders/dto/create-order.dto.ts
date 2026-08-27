@@ -13,6 +13,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { TrimString } from '../../../common/transforms';
+import { VALIDATION } from '../../../common/messages';
 
 export class OrderItemInputDto {
   @ApiProperty({ format: 'uuid' })
@@ -42,7 +43,7 @@ export class CreateOrderDto {
   @ApiProperty({ type: [OrderItemInputDto], minItems: 1, maxItems: 50 })
   @ValidateNested({ each: true })
   @Type(() => OrderItemInputDto)
-  @ArrayMinSize(1, { message: 'an order must contain at least one item' })
+  @ArrayMinSize(1, { message: VALIDATION.orderNeedsItems })
   @ArrayMaxSize(50)
   items: OrderItemInputDto[];
 

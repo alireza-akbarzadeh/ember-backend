@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import type { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { MESSAGES } from '../../../common/messages';
 
 /**
  * Registered globally in `AppModule`, so **every route is protected by
@@ -33,14 +34,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    */
   handleRequest<TUser>(err: unknown, user: unknown, info: unknown): TUser {
     if (err) {
-      throw err instanceof Error ? err : new UnauthorizedException('Authentication required');
+      throw err instanceof Error ? err : new UnauthorizedException(MESSAGES.auth.required);
     }
 
     if (!user) {
       const reason =
         info instanceof Error && info.name === 'TokenExpiredError'
-          ? 'Access token expired'
-          : 'Authentication required';
+          ? MESSAGES.auth.accessTokenExpired
+          : MESSAGES.auth.required;
       throw new UnauthorizedException(reason);
     }
 
