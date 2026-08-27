@@ -1,0 +1,24 @@
+{
+  "id": "session-1787846937559",
+  "startedAt": "2026-08-27T16:08:57.559Z",
+  "cwd": "/Users/alirezaakbarzadeh/workdir/Hit/Food/ember-backend",
+  "context": {
+    "lastMatchedPatterns": [
+      "insight-1787833380290-5m7x",
+      "insight-1787833380290-14io",
+      "insight-1787833380290-qvcw",
+      "insight-1787833380290-vtw5",
+      "insight-1787833380290-w82m"
+    ]
+  },
+  "metrics": {
+    "edits": 0,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "updatedAt": "2026-08-27T16:28:26.523Z",
+  "restoredAt": "2026-08-27T20:33:29.705Z",
+  "endedAt": "2026-08-27T20:33:29.836Z",
+  "duration": 15872278
+}
