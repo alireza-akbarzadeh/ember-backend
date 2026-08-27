@@ -68,6 +68,15 @@ export class OrderResponseDto {
   @ApiProperty({ nullable: true, type: String, format: 'date-time' })
   deliveredAt: Date | null;
 
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    format: 'date-time',
+    description:
+      'Set when payment captures; null until then. A restaurant cannot confirm an order while this is null.',
+  })
+  paidAt: Date | null;
+
   @ApiProperty({ nullable: true, type: String, format: 'date-time' })
   cancelledAt: Date | null;
 
@@ -93,6 +102,7 @@ export class OrderResponseDto {
       })),
       createdAt: order.createdAt,
       deliveredAt: order.deliveredAt,
+      paidAt: order.paidAt,
       cancelledAt: order.cancelledAt,
     };
   }

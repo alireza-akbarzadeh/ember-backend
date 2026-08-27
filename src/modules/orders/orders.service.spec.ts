@@ -88,6 +88,7 @@ function anOrder(overrides: Partial<Order> = {}): OrderWithItems {
     deliveryNotes: null,
     cancelledAt: null,
     deliveredAt: null,
+    paidAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
     items: [] as OrderItem[],
@@ -316,6 +317,17 @@ describe('OrdersService', () => {
         'confirmed',
         expect.anything(),
       );
+    });
+
+    it('stops a kitchen confirming an order nobody has paid for', async () => {
+      repository.findById.mockResolvedValue(anOrder({ paidAt: null }));
+      restaurants.requireById.mockResolvedValue(aRestaurant());
+
+      await expect(service.updateStatus(OWNER, 'order-1', { status: 'confirmed' })).rejects.toThrow(
+        MESSAGES.payments.unpaidOrder,
+      );
+
+      expect(repository.updateStatus).not.toHaveBeenCalled();
     });
 
     it('stops the customer confirming their own order', async () => {

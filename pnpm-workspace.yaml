@@ -1,3 +1,7 @@
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+  # argon2 is a native module. pnpm 10 blocks install scripts unless a package
+  # is listed here, and a silently unbuilt binding means every login and
+  # registration throws at runtime — on a clean CI installer, not locally.
+  argon2: true

@@ -44,6 +44,16 @@ export const orders = pgTable(
     deliveryAddress: text('delivery_address').notNull(),
     deliveryNotes: text('delivery_notes'),
 
+    /**
+     * Set by PaymentsService when a payment captures, in the same transaction.
+     *
+     * Denormalised on purpose: OrdersService needs to refuse to confirm an
+     * unpaid order, and reading its own column keeps orders from depending on
+     * payments — which would be a cycle, since payments already depends on
+     * orders. Same trade as `restaurants.ratingAverage`.
+     */
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
     deliveredAt: timestamp('delivered_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

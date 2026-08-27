@@ -86,6 +86,18 @@ export const MESSAGES = {
     belowMinimum: 'Your basket is below this restaurant’s minimum order',
   },
 
+  payments: {
+    notFound: 'No payment found for this order',
+    customerOnly: 'Only the customer who placed an order can pay for it',
+    alreadyPaid: 'This order has already been paid for',
+    orderNotPayable: (status: string): string => `An order that is ${status} cannot be paid for`,
+    /** The provider's own wording, which adapters keep customer-safe. */
+    declined: (reason: string): string => `Payment failed: ${reason}`,
+    notRefundable: 'Only a captured payment on a cancelled order can be refunded',
+    alreadyRefunded: 'This payment has already been refunded',
+    unpaidOrder: 'This order has not been paid for yet',
+  },
+
   reviews: {
     customerOnly: 'Only the customer who placed an order can review it',
     notDelivered: 'An order can be reviewed once it has been delivered',

@@ -4,18 +4,16 @@
   "cwd": "/Users/alirezaakbarzadeh/workdir/Hit/ember-backend",
   "context": {
     "lastMatchedPatterns": [
-      "insight-1787833380290-5m7x",
-      "insight-1787833380290-qvcw",
-      "insight-1787833380290-14io",
-      "insight-1787833380290-w82m",
-      "insight-1787833380290-vtw5"
+      "insight-1787833380290-5m7x"
     ]
   },
   "metrics": {
-    "edits": 15,
+    "edits": 17,
     "commands": 0,
     "tasks": 0,
     "errors": 0
   },
-  "updatedAt": "2026-08-27T13:53:03.010Z"
+  "updatedAt": "2026-08-27T14:25:41.390Z",
+  "endedAt": "2026-08-27T14:25:49.453Z",
+  "duration": 3080169
 }

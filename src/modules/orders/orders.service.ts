@@ -181,6 +181,13 @@ export class OrdersService {
       throw new ForbiddenException(MESSAGES.orders.transitionForbidden(dto.status));
     }
 
+    // A kitchen must not start cooking food nobody has paid for. Read from the
+    // order's own `paidAt`, which PaymentsService sets on capture — orders
+    // stays unaware of the payments module, so there is no dependency cycle.
+    if (dto.status === 'confirmed' && order.paidAt === null) {
+      throw new ConflictException(MESSAGES.payments.unpaidOrder);
+    }
+
     const updated = await this.orders.updateStatus(id, order.status, dto.status, {
       cancelledAt: dto.status === 'cancelled' ? new Date() : undefined,
       deliveredAt: dto.status === 'delivered' ? new Date() : undefined,

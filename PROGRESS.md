@@ -173,6 +173,45 @@ Courier location updates, WebSocket or SSE feed for the customer.
 
 ---
 
+## Deploying to Vercel
+
+Zero-config: Vercel detects `src/main.ts` and runs the whole app as one
+Function on Fluid compute. `app.listen()` stays as-is.
+
+**Environment variables to set in the Vercel project** (Settings → Environment
+Variables). The first two are required; the rest are wrong-by-default on
+serverless:
+
+| Variable | Value | Why |
+|---|---|---|
+| `DATABASE_URL` | Neon **pooled** URL (`-pooler` in the host) | Each instance opens its own pool; the direct endpoint runs out of connections |
+| `JWT_ACCESS_SECRET` | 32+ chars | Required; boot fails without it |
+| `TRUST_PROXY` | `1` | **Without this every request looks like it came from Vercel's proxy**, so the rate limiter throttles all users as one — 5 logins per minute globally |
+| `DATABASE_POOL_MAX` | `2`–`5` | 10 per instance × many instances exhausts Neon |
+| `SWAGGER_ENABLED` | `true` | Off in production by default; needed to browse `/docs` |
+| `CORS_ORIGINS` | your frontend origin | Empty means same-origin only |
+| `NODE_ENV` | `production` | |
+
+```bash
+vercel deploy          # preview
+vercel deploy --prod   # production
+```
+
+**Migrations do not run on deploy.** Run `pnpm db:migrate` yourself against the
+branch before the first deploy and after any schema change; `GET /` reports
+`schema: outdated` and names what is missing if you forget.
+
+### Known serverless caveats
+
+- **Rate limiting is per-instance.** `@nestjs/throttler` keeps counters in
+  memory, so the effective limit is roughly `THROTTLE_LIMIT` × instance count.
+  A shared store (Upstash Redis) is the real fix when it matters.
+- **Set the Function region near your Neon region.** A mismatch adds a
+  round-trip's latency to every single query.
+- `argon2` is native; it is listed in `pnpm-workspace.yaml` `allowBuilds` so
+  the install script runs on a clean CI installer. Removing it there means
+  auth compiles fine and throws at runtime.
+
 ## Standing debt
 
 - **E2E tests are written but never run** — they need a live database.

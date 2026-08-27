@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "computedAt": 1787837669307,
+  "computedAt": 1787841409889,
   "entries": [
     {
       "id": "insight-1787833380290-5m7x",
       "content": "File /Users/alirezaakbarzadeh/workdir/Hit/ember-backend/package.json was edited 3 times this session — likely a hot path worth monitoring.",
       "summary": "Frequently edited: package.json (3x)",
       "category": "insights",
-      "confidence": 0.55,
+      "confidence": 0.6500000000000001,
       "pageRank": 0.21050056213457277,
-      "accessCount": 1,
+      "accessCount": 3,
       "words": [
         "file",
         "users",
@@ -38,9 +38,9 @@
       "content": "File /Users/alirezaakbarzadeh/workdir/Hit/ember-backend/PROGRESS.md was edited 8 times this session — likely a hot path worth monitoring.",
       "summary": "Frequently edited: PROGRESS.md (8x)",
       "category": "insights",
-      "confidence": 0.5,
+      "confidence": 0.6300000000000001,
       "pageRank": 0.11378407303713307,
-      "accessCount": 0,
+      "accessCount": 3,
       "words": [
         "file",
         "users",
@@ -67,9 +67,9 @@
       "content": "File /Users/alirezaakbarzadeh/workdir/Hit/ember-backend/src/home/home-page.template.ts was edited 4 times this session — likely a hot path worth monitoring.",
       "summary": "Frequently edited: home-page.template.ts (4x)",
       "category": "insights",
-      "confidence": 0.5,
+      "confidence": 0.6300000000000001,
       "pageRank": 0.07984847787218927,
-      "accessCount": 0,
+      "accessCount": 3,
       "words": [
         "file",
         "users",
@@ -100,9 +100,9 @@
       "content": "File /Users/alirezaakbarzadeh/workdir/Hit/ember-backend/src/modules/orders/orders.service.spec.ts was edited 6 times this session — likely a hot path worth monitoring.",
       "summary": "Frequently edited: orders.service.spec.ts (6x)",
       "category": "insights",
-      "confidence": 0.5,
+      "confidence": 0.6300000000000001,
       "pageRank": 0.06221960087506294,
-      "accessCount": 0,
+      "accessCount": 3,
       "words": [
         "file",
         "users",
@@ -136,9 +136,9 @@
       "content": "File /Users/alirezaakbarzadeh/workdir/Hit/ember-backend/src/modules/restaurants/restaurants.module.ts was edited 4 times this session — likely a hot path worth monitoring.",
       "summary": "Frequently edited: restaurants.module.ts (4x)",
       "category": "insights",
-      "confidence": 0.5,
+      "confidence": 0.6300000000000001,
       "pageRank": 0.05131514156721584,
-      "accessCount": 0,
+      "accessCount": 3,
       "words": [
         "file",
         "users",
