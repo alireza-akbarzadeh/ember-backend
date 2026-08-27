@@ -8,3 +8,4 @@ export * from './schema/menu-categories';
 export * from './schema/menu-items';
 export * from './schema/orders';
 export * from './schema/order-items';
+export * from './schema/reviews';

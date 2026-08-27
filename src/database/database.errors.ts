@@ -6,11 +6,28 @@ interface PostgresError {
   constraint?: string;
 }
 
-function asPostgresError(error: unknown): PostgresError | null {
-  if (typeof error !== 'object' || error === null) return null;
+/**
+ * Finds the driver error, however deeply it has been wrapped.
+ *
+ * Drizzle does not rethrow the `pg` error directly — it raises its own
+ * `Failed query: ...` Error and hangs the original off `cause`. Inspecting
+ * only the top level misses every constraint violation, silently turning what
+ * should be a 409 into a 500, so this walks the chain.
+ */
+function asPostgresError(error: unknown, depth = 0): PostgresError | null {
+  // Depth guard: a self-referencing `cause` would otherwise loop forever, and
+  // no genuine chain is this deep.
+  if (typeof error !== 'object' || error === null || depth > 5) return null;
 
-  const candidate = error as { code?: unknown; constraint?: unknown };
-  if (typeof candidate.code !== 'string') return null;
+  const candidate = error as {
+    code?: unknown;
+    constraint?: unknown;
+    cause?: unknown;
+  };
+
+  if (typeof candidate.code !== 'string') {
+    return asPostgresError(candidate.cause, depth + 1);
+  }
 
   return {
     code: candidate.code,

@@ -42,7 +42,7 @@ export function renderHomePage(data: HomePageData): string {
 
 function renderHeader(data: HomePageData): string {
   const dbTone = data.database === 'up' ? 'ok' : 'bad';
-  const schemaTone = data.schema === 'ready' ? 'ok' : data.schema === 'missing' ? 'warn' : 'bad';
+  const schemaTone = data.schema === 'ready' ? 'ok' : data.schema === 'unknown' ? 'bad' : 'warn';
 
   return `<header>
   <div class="brand">
@@ -74,7 +74,20 @@ function renderAlert(data: HomePageData): string {
     return alertBox(
       'warn',
       'Tables not created yet',
-      'The database is reachable but the migrations have not been applied, so every data route will return a 500. Run <code>pnpm db:migrate</code>, then reload this page.',
+      'The database is reachable but nothing has been migrated, so every data route will return a 500. Run <code>pnpm db:migrate</code>, then reload this page.',
+    );
+  }
+
+  if (data.schema === 'outdated') {
+    // The nastiest of the three: enough exists that the app boots and most
+    // routes work, so the failures look like code bugs rather than a
+    // migration that was never run.
+    const absent = data.missing.map((name) => `<code>${esc(name)}</code>`).join(', ');
+
+    return alertBox(
+      'warn',
+      'Schema is behind the code',
+      `The database is missing ${absent}. Anything touching those will fail. Run <code>pnpm db:migrate</code>, then reload this page.`,
     );
   }
 

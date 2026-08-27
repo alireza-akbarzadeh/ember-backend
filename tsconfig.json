@@ -10,6 +10,11 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    // Declared explicitly rather than relying on TS to sweep node_modules/@types.
+    // An editor that resolves a spec file against tsconfig.build.json (which
+    // excludes *.spec.ts) otherwise gets no ambient types at all, and reports
+    // `Cannot find name 'beforeEach'` on files that compile fine.
+    "types": ["node", "jest"],
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",

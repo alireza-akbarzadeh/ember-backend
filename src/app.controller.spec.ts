@@ -1,9 +1,27 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppService, declaredSchema } from './app.service';
 import { DRIZZLE } from './database/database.constants';
 import { ApiCatalogService } from './home/api-catalog.service';
+
+/**
+ * What `information_schema.columns` returns for a fully migrated database.
+ *
+ * Built from the same `declaredSchema()` the check itself uses, so adding a
+ * table never leaves these fixtures behind.
+ */
+function liveSchemaRows(): Array<{ table_name: string; column_name: string }> {
+  const rows: Array<{ table_name: string; column_name: string }> = [];
+
+  for (const [table, columns] of declaredSchema()) {
+    for (const column of columns) {
+      rows.push({ table_name: table, column_name: column });
+    }
+  }
+
+  return rows;
+}
 
 describe('AppController', () => {
   let appController: AppController;
@@ -37,7 +55,7 @@ describe('AppController', () => {
 
   describe('index', () => {
     it('renders a page with a link to the docs', async () => {
-      execute.mockResolvedValue({ rows: [{ present: 'users' }] });
+      execute.mockResolvedValue({ rows: liveSchemaRows() });
 
       const html = await appController.index();
 
@@ -47,7 +65,7 @@ describe('AppController', () => {
     });
 
     it('carries no inline script, which the CSP would block', async () => {
-      execute.mockResolvedValue({ rows: [{ present: 'users' }] });
+      execute.mockResolvedValue({ rows: liveSchemaRows() });
 
       const html = await appController.index();
 
@@ -55,13 +73,49 @@ describe('AppController', () => {
       expect(html).not.toMatch(/<script/i);
     });
 
-    it('tells the reader to migrate when the tables are absent', async () => {
-      execute.mockResolvedValue({ rows: [{ present: null }] });
+    it('reports ready when every table and column is present', async () => {
+      execute.mockResolvedValue({ rows: liveSchemaRows() });
+
+      const html = await appController.index();
+
+      expect(html).toContain('schema ready');
+      expect(html).not.toContain('pnpm db:migrate');
+    });
+
+    it('tells the reader to migrate when nothing has been created', async () => {
+      execute.mockResolvedValue({ rows: [] });
 
       const html = await appController.index();
 
       expect(html).toContain('Tables not created yet');
       expect(html).toContain('pnpm db:migrate');
+    });
+
+    it('catches a database migrated to an earlier version', async () => {
+      // The case a single well-known-table check misses entirely: `users`
+      // exists, the app boots, and every write to `addresses` fails.
+      execute.mockResolvedValue({
+        rows: liveSchemaRows().filter((row) => row.table_name !== 'addresses'),
+      });
+
+      const html = await appController.index();
+
+      expect(html).toContain('Schema is behind the code');
+      expect(html).toContain('addresses');
+      expect(html).toContain('pnpm db:migrate');
+    });
+
+    it('catches a table that is merely missing a column', async () => {
+      execute.mockResolvedValue({
+        rows: liveSchemaRows().filter(
+          (row) => !(row.table_name === 'restaurants' && row.column_name === 'latitude'),
+        ),
+      });
+
+      const html = await appController.index();
+
+      expect(html).toContain('Schema is behind the code');
+      expect(html).toContain('restaurants.latitude');
     });
 
     it('reports a dead database instead of rendering a broken page', async () => {

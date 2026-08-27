@@ -37,14 +37,19 @@ const toStringArray = () =>
       .filter(Boolean);
   });
 
+/** Same, for numeric filters: `?priceLevel=1&priceLevel=2` or `?priceLevel=1,2`. */
 const toNumberArray = () =>
-  Transform(({ value }: { value: unknown }) => {
-    const raw = Array.isArray(value) ? value : [value];
+  Transform(({ value }: { value: unknown }): number[] => {
+    const raw: unknown[] = Array.isArray(value) ? (value as unknown[]) : [value];
 
-    return raw
-      .flatMap((entry) => (typeof entry === 'string' ? entry.split(',') : [entry]))
-      .map((entry) => Number(entry))
-      .filter((entry) => Number.isFinite(entry));
+    return (
+      raw
+        .flatMap((entry): unknown[] => (typeof entry === 'string' ? entry.split(',') : [entry]))
+        .map((entry) => Number(entry))
+        // Non-numeric junk drops out rather than becoming NaN, which would make
+        // the whole `inArray` filter match nothing with no explanation.
+        .filter((entry) => Number.isFinite(entry))
+    );
   });
 
 export class ListRestaurantsQueryDto extends PaginationQueryDto {
