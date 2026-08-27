@@ -163,11 +163,45 @@ POST   /api/cart/checkout            → order, then empties
 **Verified live against Neon** — add, increment, cross-restaurant rejection,
 below-minimum block, checkout, basket emptied.
 
-## ⬜ 7. Payments ← **next**
+## ✅ 7. Payments
 
-Payment intent, idempotency keys, webhook reconciliation.
+Built against a **provider interface**, not a provider. `PaymentsService` owns
+every decision — eligibility, amount, idempotency, state — and the adapter only
+moves money, so Stripe is one new class bound in `PaymentsModule`.
 
-## ⬜ 8. Live delivery tracking
+- **Idempotency keys with a unique index.** A timeout is indistinguishable from
+  a failure client-side, so retries are guaranteed; retrying with the same key
+  returns the original result instead of charging twice. Two racing requests
+  collide on the index *before* the provider is contacted.
+- **The amount is the order total.** No amount field exists on any payment DTO.
+- **A kitchen cannot confirm an unpaid order** — `orders.paidAt` is set inside
+  the same transaction that captures the payment. Orders reads its own column,
+  so it never depends on the payments module and there is no cycle.
+- Refunds only on cancelled orders; refunding clears `paidAt`.
+- `authorize` and `capture` stay distinct calls even though delivery captures
+  immediately, so "capture on delivery" becomes a resequencing, not a migration.
+- `FakePaymentProvider` approves everything except two magic amounts (1301,
+  1302), the way Stripe reserves test cards — the failure paths are reachable
+  with no account.
+
+```
+POST /api/orders/:orderId/payment          pay (idempotencyKey required)
+GET  /api/orders/:orderId/payment
+POST /api/orders/:orderId/payment/refund
+```
+
+**Verified live against Neon** — confirm-before-paying blocked, payment
+captured, retry returned the same payment, confirm then allowed, refund
+cleared `paidAt`, double-refund rejected.
+
+### To switch to Stripe
+
+Write `StripePaymentProvider implements PaymentProvider` and change the one
+binding in `PaymentsModule`. Nothing in the service, schema or routes moves.
+A webhook endpoint is the remaining piece, and it needs a public URL — so it
+lands after deployment.
+
+## ⬜ 8. Live delivery tracking ← **next**
 
 Courier location updates, WebSocket or SSE feed for the customer.
 
